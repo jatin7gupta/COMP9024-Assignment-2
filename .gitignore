@@ -2,3 +2,5 @@
 .nfs*
 
 *.out
+*.exe
+/.idea
