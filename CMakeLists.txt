@@ -3,4 +3,4 @@ project(test C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(test owl.c quack.h quack.c)
+add_executable(test owl.c Quack.h Quack.c Graph.h GraphAM.c)

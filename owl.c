@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "Graph.h"
+#include "Quack.h"
 
 int len(char *word) {
 	return strlen(word);
@@ -45,6 +47,10 @@ bool differByOne(char *firstWord, char *secondWord) {
 }
 
 int main(void) {
-	printf("%d\n", differByOne("cann","can"));
+    Quack q = createQuack();
+    push(1, q);
+    push(2, q);
+    pop(q);
+    showQuack(q);
 	return EXIT_SUCCESS;
 }
