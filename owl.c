@@ -50,7 +50,7 @@ int takeInput(char dict[1000][21]) {
 	int wordCounter = 0;
 	char word[21];
 	while (fscanf(stdin, "%s", word) == 1) {
-		printf("%s   ", word);
+		//printf("%s   ", word);
 		strcpy(dict[wordCounter++], word);
 	}
 	return wordCounter;
@@ -58,6 +58,9 @@ int takeInput(char dict[1000][21]) {
 
 int main(void) {
     char dict[1000][21]; // TODO dynamic allocation
-	takeInput(dict);
+	int wordCount = takeInput(dict);
+    for (int i = 0; i < wordCount; i++) {
+        printf("%s\n", dict[i]);
+    }
 	return EXIT_SUCCESS;
 }
