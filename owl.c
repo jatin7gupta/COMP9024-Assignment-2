@@ -54,12 +54,22 @@ int takeInput(char dict[1000][21]) {
 	}
 	return wordCounter;
 }
+Graph createGraph(char dict[1000][21], int wordCount){
+    Graph g = newGraph(wordCount);
+    for (int i = 0; i < wordCount; i++) {
+        for (int j = 0; j < wordCount; j++) {
+            if (differByOne(dict[i], dict[j])) {
+                insertEdge(newEdge(i, j), g);
+            }
+        }
+    }
+    return g;
+}
 
 int main(void) {
     char dict[1000][21]; // TODO dynamic allocation
 	int wordCount = takeInput(dict);
-    for (int i = 0; i < wordCount; i++) {
-        printf("%s\n", dict[i]);
-    }
+    Graph graph = createGraph(dict, wordCount);
+    showGraph(graph);
 	return EXIT_SUCCESS;
 }
