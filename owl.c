@@ -46,11 +46,18 @@ bool differByOne(char *firstWord, char *secondWord) {
 	
 }
 
+int takeInput(char dict[1000][21]) {
+	int wordCounter = 0;
+	char word[21];
+	while (fscanf(stdin, "%s", word) == 1) {
+		printf("%s   ", word);
+		strcpy(dict[wordCounter++], word);
+	}
+	return wordCounter;
+}
+
 int main(void) {
-    Quack q = createQuack();
-    push(1, q);
-    push(2, q);
-    pop(q);
-    showQuack(q);
+    char dict[1000][21]; // TODO dynamic allocation
+	takeInput(dict);
 	return EXIT_SUCCESS;
 }
