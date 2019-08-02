@@ -38,7 +38,7 @@ bool differByOne(char *firstWord, char *secondWord) {
 				s++;
 			}
 		}
-		if (changeCount == 1) {
+		if (changeCount == 1 || f == s) {
 			return true;
 		}
 	}
