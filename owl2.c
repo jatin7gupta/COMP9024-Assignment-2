@@ -5,6 +5,9 @@
 #include "Graph.h"
 #include "Quack.h"
 
+#define INITIAL_LENGTH 4
+#define WORD_LENGTH 21
+
 int len(char *word) {
 	return strlen(word);
 }
@@ -46,16 +49,50 @@ bool differByOne(char *firstWord, char *secondWord) {
 	
 }
 
-int takeInput(char dict[1000][21]) {
+
+char **performMalloc(char **dict, int length) {
+	dict = malloc(length * sizeof(char *));
+	if (dict == NULL) {
+		fprintf(stderr, "Ran out of memory, Quiting");
+		exit(EXIT_FAILURE);
+	}
+	return dict;
+}
+
+char *mallocWord(char *block, int length) {
+	block = malloc(length * sizeof(char));
+	if (block == NULL) {
+		fprintf(stderr, "Ran out of memory, Quiting");
+		exit(EXIT_FAILURE);
+	}
+	return block;
+}
+
+char **performRealloc(char **dict, int length) {
+	dict = realloc(dict, length * 2 * sizeof(char *));
+	if (dict == NULL) {
+		fprintf(stderr, "Ran out of memory, Quiting");
+		exit(EXIT_FAILURE);
+	}
+	return dict;
+}
+
+int takeInput(char **dict, int initialLength) {
 	int wordCounter = 0;
-	char word[21];
+	char word[WORD_LENGTH];
 	while (fscanf(stdin, "%s", word) == 1) {
-		printf("%lu", strlen(word));
+		int inputLength = strlen(word);
+		dict[wordCounter] = mallocWord(dict[wordCounter], inputLength+1);
 		strcpy(dict[wordCounter++], word);
+
+		if (wordCounter == initialLength) {
+			dict = performRealloc(dict, initialLength);	
+		}
 	}
 	return wordCounter;
 }
-Graph createGraph(char dict[1000][21], int wordCount){
+
+Graph createGraph(char **dict, int wordCount){
     Graph g = newGraph(wordCount);
     for (int i = 0; i < wordCount; i++) {
         for (int j = 0; j < wordCount; j++) {
@@ -67,9 +104,11 @@ Graph createGraph(char dict[1000][21], int wordCount){
     return g;
 }
 
+
 int main(void) {
-    char dict[1000][21]; // TODO dynamic allocation
-	int wordCount = takeInput(dict);
+    char **dict = NULL; // TODO dynamic allocation
+    dict = performMalloc(dict, INITIAL_LENGTH);
+	int wordCount = takeInput(dict, INITIAL_LENGTH);
     Graph graph = createGraph(dict, wordCount);
     showGraph(graph);
 	return EXIT_SUCCESS;
