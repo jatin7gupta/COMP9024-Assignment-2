@@ -5,12 +5,15 @@
 #include "Graph.h"
 #include "Quack.h"
 
+
 #define INITIAL_LENGTH 8
 #define WORD_LENGTH 21
+
 
 int len(char *word) {
 	return strlen(word);
 }
+
 
 bool differByOne(char *firstWord, char *secondWord) {
 	int firstWordLength = len(firstWord);
@@ -46,7 +49,6 @@ bool differByOne(char *firstWord, char *secondWord) {
 		}
 	}
 	return false;
-	
 }
 
 
@@ -59,6 +61,7 @@ char **performMalloc(int length) {
 	return dict;
 }
 
+
 char *mallocWord(int length) {
 	char *block = malloc(length * sizeof(char));
 	if (block == NULL) {
@@ -68,6 +71,7 @@ char *mallocWord(int length) {
 	return block;
 }
 
+
 char **performRealloc(char **dict, int length) {
 	dict = realloc(dict, length * 2 * sizeof(char *));
 	if (dict == NULL) {
@@ -76,6 +80,7 @@ char **performRealloc(char **dict, int length) {
 	}
 	return dict;
 }
+
 
 int takeInput(char ***dict, int initialLength) {
 	int wordCounter = 0;
@@ -93,6 +98,7 @@ int takeInput(char ***dict, int initialLength) {
 	return wordCounter;
 }
 
+
 Graph createGraph(char **dict, int wordCount){
     Graph g = newGraph(wordCount);
     for (int i = 0; i < wordCount; i++) {
@@ -107,7 +113,7 @@ Graph createGraph(char **dict, int wordCount){
 
 
 int main(void) {
-    char **dict = NULL; // TODO dynamic allocation
+    char **dict = NULL;
     dict = performMalloc(INITIAL_LENGTH);
 	int wordCount = takeInput(&dict, INITIAL_LENGTH);
     Graph graph = createGraph(dict, wordCount);
