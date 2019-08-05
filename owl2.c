@@ -77,16 +77,16 @@ char **performRealloc(char **dict, int length) {
 	return dict;
 }
 
-int takeInput(char **dict, int initialLength) {
+int takeInput(char ***dict, int initialLength) {
 	int wordCounter = 0;
 	char word[WORD_LENGTH];
 	while (fscanf(stdin, "%s", word) == 1) {
 		int inputLength = strlen(word);
-		dict[wordCounter] = mallocWord(dict[wordCounter], inputLength+1);
-		strcpy(dict[wordCounter++], word);
+		(*dict)[wordCounter] = mallocWord((*dict)[wordCounter], inputLength+1);
+		strcpy((*dict)[wordCounter++], word);
 
 		if (wordCounter == initialLength) {
-			dict = performRealloc(dict, initialLength);	
+			*dict = performRealloc(*dict, initialLength);	
 			initialLength = initialLength * 2;
 		}
 	}
@@ -109,7 +109,7 @@ Graph createGraph(char **dict, int wordCount){
 int main(void) {
     char **dict = NULL; // TODO dynamic allocation
     dict = performMalloc(dict, INITIAL_LENGTH);
-	int wordCount = takeInput(dict, INITIAL_LENGTH);
+	int wordCount = takeInput(&dict, INITIAL_LENGTH);
     Graph graph = createGraph(dict, wordCount);
     showGraph(graph);
 	return EXIT_SUCCESS;
