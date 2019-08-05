@@ -87,6 +87,7 @@ int takeInput(char **dict, int initialLength) {
 
 		if (wordCounter == initialLength) {
 			dict = performRealloc(dict, initialLength);	
+			initialLength = initialLength * 2;
 		}
 	}
 	return wordCounter;
