@@ -5,7 +5,7 @@
 #include "Graph.h"
 #include "Quack.h"
 
-#define INITIAL_LENGTH 4
+#define INITIAL_LENGTH 8
 #define WORD_LENGTH 21
 
 int len(char *word) {
@@ -50,8 +50,8 @@ bool differByOne(char *firstWord, char *secondWord) {
 }
 
 
-char **performMalloc(char **dict, int length) {
-	dict = malloc(length * sizeof(char *));
+char **performMalloc(int length) {
+	char **dict = malloc(length * sizeof(char *));
 	if (dict == NULL) {
 		fprintf(stderr, "Ran out of memory, Quiting");
 		exit(EXIT_FAILURE);
@@ -59,8 +59,8 @@ char **performMalloc(char **dict, int length) {
 	return dict;
 }
 
-char *mallocWord(char *block, int length) {
-	block = malloc(length * sizeof(char));
+char *mallocWord(int length) {
+	char *block = malloc(length * sizeof(char));
 	if (block == NULL) {
 		fprintf(stderr, "Ran out of memory, Quiting");
 		exit(EXIT_FAILURE);
@@ -82,7 +82,7 @@ int takeInput(char ***dict, int initialLength) {
 	char word[WORD_LENGTH];
 	while (fscanf(stdin, "%s", word) == 1) {
 		int inputLength = strlen(word);
-		(*dict)[wordCounter] = mallocWord((*dict)[wordCounter], inputLength+1);
+		(*dict)[wordCounter] = mallocWord(inputLength+1);
 		strcpy((*dict)[wordCounter++], word);
 
 		if (wordCounter == initialLength) {
@@ -108,7 +108,7 @@ Graph createGraph(char **dict, int wordCount){
 
 int main(void) {
     char **dict = NULL; // TODO dynamic allocation
-    dict = performMalloc(dict, INITIAL_LENGTH);
+    dict = performMalloc(INITIAL_LENGTH);
 	int wordCount = takeInput(&dict, INITIAL_LENGTH);
     Graph graph = createGraph(dict, wordCount);
     showGraph(graph);
