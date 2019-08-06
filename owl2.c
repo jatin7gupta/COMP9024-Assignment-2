@@ -87,9 +87,15 @@ int takeInput(char ***dict, int initialLength) {
 	char word[WORD_LENGTH];
 	while (fscanf(stdin, "%s", word) == 1) {
 		int inputLength = strlen(word);
-		(*dict)[wordCounter] = mallocWord(inputLength+1);
-		strcpy((*dict)[wordCounter++], word);
-
+		if (wordCounter > 0) {
+			if (strcmp((*dict)[wordCounter-1], word) != 0) {
+				(*dict)[wordCounter] = mallocWord(inputLength+1);
+				strcpy((*dict)[wordCounter++], word);
+			}
+		} else {
+			(*dict)[wordCounter] = mallocWord(inputLength+1);
+			strcpy((*dict)[wordCounter++], word);			
+		}
 		if (wordCounter == initialLength) {
 			*dict = performRealloc(*dict, initialLength);	
 			initialLength = initialLength * 2;
@@ -147,7 +153,7 @@ void dfsR(Graph g, Vertex v, int numV, int *order, int *visited) {
     visited[v] = *order;                
     *order = *order+1;
     for (Vertex w = v+1; w < numV; w++) {
-       	if (isEdge(newEdge(v,w), g) && visited[w]==UNVISITED && w > *order) {
+       	if (isEdge(newEdge(v,w), g) && visited[w]==UNVISITED && w >= *order) {
 			printf("%d ", w);
           	dfsR(g, w, numV, order, visited);
        	}
@@ -161,6 +167,7 @@ int* dfs(Graph g, Vertex rootv, int numV) {
     int order = 0;
     Vertex startv = rootv;                      
     dfsR(g, startv, numV, &order, visited);
+    // TODO: support disconnected graphs
 	printf("\nVisited array : ");
 	for (int i = 0; i < numV; i++) {
 		printf("%d ", visited[i]);
@@ -169,14 +176,38 @@ int* dfs(Graph g, Vertex rootv, int numV) {
    return visited;
 }
 
+
+char **freeDict(char **dict, int wordCount) {
+	for (int i = 0; i < wordCount; i++) {
+		free(dict[i]);
+		dict[i] = NULL;
+	}
+	free(dict);
+	dict = NULL;
+	return dict;
+}
+
+
 int main(void) {
     char **dict = NULL;
     dict = performMalloc(INITIAL_LENGTH);
 	int wordCount = takeInput(&dict, INITIAL_LENGTH);
     Graph graph = createGraph(dict, wordCount);
-    //printGraph(dict, wordCount, graph);
-    int *visited = dfs(graph, 0, wordCount);
-    //TODO: number of paths
-    printArray("Longest ladder length: _\nLongest ladders:\n", visited, wordCount, dict);
+    printGraph(dict, wordCount, graph);
+    int *visited = NULL;
+    if (wordCount > 0) {
+    	visited = dfs(graph, 0, wordCount);
+		
+		//printArray("Longest ladder length: _\nLongest ladders:\n", visited, wordCount, dict);
+    }
+    dict = freeDict(dict, wordCount);
+    free(visited);
+    visited = NULL;
 	return EXIT_SUCCESS;
 }
+
+//TODO: number of paths
+//TODO: use %2d and trailing \n
+//TODO: free mallocs DONE
+//TODO: handle duplicates before dict DONE
+//TODO: handle empty dict DONE
