@@ -111,12 +111,72 @@ Graph createGraph(char **dict, int wordCount){
     return g;
 }
 
+void printGraph(char **dict, int wordCount, Graph graph) {
+	printf("Dictionary\n");
+	for (int i = 0; i < wordCount; i++) {
+		printf("%d: %s\n", i, dict[i]);
+	}
+	printf("Ordered Word Ladder Graph\n");
+	showGraph(graph);
+}
+
+int *mallocArray(int length) {
+	int *block = malloc(length * sizeof(int));
+	if (block == NULL) {
+		fprintf(stderr, "Ran out of memory, Quiting");
+		exit(EXIT_FAILURE);
+	}
+	for (int i = 0; i < length; i++) {
+		block[i] = -1;
+	}
+	return block;
+}
+
+void printArray(char *string, int *array, int n, char **dict) {
+	printf("%s", string);
+	for (int i = 0; i < n; i++) {
+		if (array[i] != -1) {
+			printf("%s -> ", dict[i]);
+		}
+	}
+	printf("\n");
+}
+
+
+void dfsR(Graph g, Vertex v, int numV, int *order, int *visited) {
+    visited[v] = *order;                
+    *order = *order+1;
+    for (Vertex w = v+1; w < numV; w++) {
+       	if (isEdge(newEdge(v,w), g) && visited[w]==UNVISITED && w > *order) {
+			printf("%d ", w);
+          	dfsR(g, w, numV, order, visited);
+       	}
+    }
+    return;
+}
+
+
+int* dfs(Graph g, Vertex rootv, int numV) {
+    int *visited = mallocArray(numV); 
+    int order = 0;
+    Vertex startv = rootv;                      
+    dfsR(g, startv, numV, &order, visited);
+	printf("\nVisited array : ");
+	for (int i = 0; i < numV; i++) {
+		printf("%d ", visited[i]);
+	}
+	printf("\n");
+   return visited;
+}
 
 int main(void) {
     char **dict = NULL;
     dict = performMalloc(INITIAL_LENGTH);
 	int wordCount = takeInput(&dict, INITIAL_LENGTH);
     Graph graph = createGraph(dict, wordCount);
-    showGraph(graph);
+    //printGraph(dict, wordCount, graph);
+    int *visited = dfs(graph, 0, wordCount);
+    //TODO: number of paths
+    printArray("Longest ladder length: _\nLongest ladders:\n", visited, wordCount, dict);
 	return EXIT_SUCCESS;
 }
