@@ -149,11 +149,23 @@ void printArray(char *string, int *array, int n, char **dict) {
 }
 
 
+int maxIndex(int *array, int length) {
+	int index = -1;
+	int max = -1;
+	for (int i = 0; i < length; i++) {
+		if (array[i] > max) {
+			max = array[i];
+			index = i;
+		}
+	}
+	return index;
+}
+
 void dfsR(Graph g, Vertex v, int numV, int *order, int *visited) {
     visited[v] = *order;                
     *order = *order+1;
     for (Vertex w = v+1; w < numV; w++) {
-       	if (isEdge(newEdge(v,w), g) && visited[w]==UNVISITED && w >= *order) {
+       	if (isEdge(newEdge(v,w), g) && visited[w]==UNVISITED && isEdge(newEdge(maxIndex(visited, numV), w), g)) {
 			printf("%d ", w);
           	dfsR(g, w, numV, order, visited);
        	}
@@ -198,7 +210,7 @@ int main(void) {
     if (wordCount > 0) {
     	visited = dfs(graph, 0, wordCount);
 		
-		//printArray("Longest ladder length: _\nLongest ladders:\n", visited, wordCount, dict);
+		printArray("Longest ladder length: _\nLongest ladders:\n", visited, wordCount, dict);
     }
     dict = freeDict(dict, wordCount);
     free(visited);
