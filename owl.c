@@ -8,6 +8,7 @@
 
 #define INITIAL_LENGTH 8
 #define WORD_LENGTH 21
+#define MAXIMUM_PATHS 100
 
 
 int len(char *word) {
@@ -171,16 +172,23 @@ bool childExist(int v, Graph g, int numV) {
 	return false;
 }
 
-void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen) {
+void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen, int *visited, int *cursor) {
+	visited[*cursor] = v;
     for (Vertex w = v+1; w < numV; w++) {
        	if (isEdge(newEdge(v, w), g)) {
-          	dfsR(g, w, numV, counter+1, maxSeen);
+       		*cursor = *cursor + 1;
+          	dfsR(g, w, numV, counter+1, maxSeen, visited, cursor);
+          	*cursor = *cursor - 1;
           	if (!childExist(w, g, numV)) {
 		   		if (*maxSeen < counter+1) {
 					*maxSeen = counter+1;
 				}
 				if (counter+1 == *maxSeen) {
 					printf("max node found %d | ", counter+1);
+					for (int i = 0; i < numV; i++) {
+    					printf("%d->", visited[i]);
+    				}
+    				printf(" --| cursor = %d ", *cursor);
 				}
        		}
        	} 
@@ -190,13 +198,24 @@ void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen) {
 
 
 int dfs(Graph g, Vertex rootv, int numV) {
-    int maxSeen = 0;
+    int maxSeen = 1;
     int counter = 0;
+    int *visited = mallocArray(numV); //TODO FREE THIS 
+    int cursor = 0;
     Vertex startv = rootv;                      
-    dfsR(g, startv, numV, counter+1, &maxSeen);
-    printf("maxSeen = %d\n", maxSeen);
+    dfsR(g, startv, numV, counter+1, &maxSeen, visited, &cursor);
+    
+    printf("maxSeen = %d, cursor = %d \n", maxSeen, cursor);
     // TODO: support disconnected graphs
    return maxSeen;
+}
+
+
+Quack *createQuackArray(Quack *quackArray) {
+	for (int i = 0; i < MAXIMUM_PATHS; i++) {
+		quackArray[i] = createQuack();
+	}
+	return quackArray;
 }
 
 
@@ -205,15 +224,25 @@ int main(void) {
     dict = performMalloc(INITIAL_LENGTH);
 	int wordCount = takeInput(&dict, INITIAL_LENGTH);
     Graph graph = createGraph(dict, wordCount);
+    //Quack quackArray[MAXIMUM_PATHS];
+    //createQuackArray(quackArray);
+    
     //printGraph(dict, wordCount, graph);
-    int maxSeen = -1;
+    //int maxSeen = -1;
+    int newMaxSeen = dfs(graph, 0, wordCount);
+    /*
     if (wordCount > 0) {
     	for (int i = 0; i < wordCount; i++) {
-    		maxSeen = dfs(graph, i, wordCount);
+    		int newMaxSeen = dfs(graph, i, wordCount);
+    		if (newMaxSeen > maxSeen) {
+    			maxSeen = newMaxSeen;
+    		}
     	}
-		//printArray("Longest ladder length: _\nLongest ladders:\n", visited, wordCount, dict);
+		//printArray("Longest ladder length: %d\nLongest ladders:\n", maxSeen, wordCount, dict);
     }
+    */
     dict = freeDict(dict, wordCount);
+    
 	return EXIT_SUCCESS;
 }
 
