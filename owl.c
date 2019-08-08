@@ -15,6 +15,60 @@ int len(char *word) {
 }
 
 
+char **freeDict(char **dict, int wordCount) {
+	for (int i = 0; i < wordCount; i++) {
+		free(dict[i]);
+		dict[i] = NULL;
+	}
+	free(dict);
+	dict = NULL;
+	return dict;
+}
+
+
+char **performMalloc(int length) {
+	char **dict = malloc(length * sizeof(char *));
+	if (dict == NULL) {
+		fprintf(stderr, "Ran out of memory, Quiting");
+		exit(EXIT_FAILURE);
+	}
+	return dict;
+}
+
+
+char *mallocWord(int length) {
+	char *block = malloc(length * sizeof(char));
+	if (block == NULL) {
+		fprintf(stderr, "Ran out of memory, Quiting");
+		exit(EXIT_FAILURE);
+	}
+	return block;
+}
+
+
+char **performRealloc(char **dict, int length) {
+	dict = realloc(dict, length * 2 * sizeof(char *));
+	if (dict == NULL) {
+		fprintf(stderr, "Ran out of memory, Quiting");
+		exit(EXIT_FAILURE);
+	}
+	return dict;
+}
+
+
+int *mallocArray(int length) {
+	int *block = malloc(length * sizeof(int));
+	if (block == NULL) {
+		fprintf(stderr, "Ran out of memory, Quiting");
+		exit(EXIT_FAILURE);
+	}
+	for (int i = 0; i < length; i++) {
+		block[i] = -1;
+	}
+	return block;
+}
+
+
 bool differByOne(char *firstWord, char *secondWord) {
 	int firstWordLength = len(firstWord);
 	int secondWordLength = len(secondWord);
@@ -49,36 +103,6 @@ bool differByOne(char *firstWord, char *secondWord) {
 		}
 	}
 	return false;
-}
-
-
-char **performMalloc(int length) {
-	char **dict = malloc(length * sizeof(char *));
-	if (dict == NULL) {
-		fprintf(stderr, "Ran out of memory, Quiting");
-		exit(EXIT_FAILURE);
-	}
-	return dict;
-}
-
-
-char *mallocWord(int length) {
-	char *block = malloc(length * sizeof(char));
-	if (block == NULL) {
-		fprintf(stderr, "Ran out of memory, Quiting");
-		exit(EXIT_FAILURE);
-	}
-	return block;
-}
-
-
-char **performRealloc(char **dict, int length) {
-	dict = realloc(dict, length * 2 * sizeof(char *));
-	if (dict == NULL) {
-		fprintf(stderr, "Ran out of memory, Quiting");
-		exit(EXIT_FAILURE);
-	}
-	return dict;
 }
 
 
@@ -126,17 +150,6 @@ void printGraph(char **dict, int wordCount, Graph graph) {
 	showGraph(graph);
 }
 
-int *mallocArray(int length) {
-	int *block = malloc(length * sizeof(int));
-	if (block == NULL) {
-		fprintf(stderr, "Ran out of memory, Quiting");
-		exit(EXIT_FAILURE);
-	}
-	for (int i = 0; i < length; i++) {
-		block[i] = -1;
-	}
-	return block;
-}
 
 void printArray(char *string, int *array, int n, char **dict) {
 	printf("%s", string);
@@ -149,18 +162,6 @@ void printArray(char *string, int *array, int n, char **dict) {
 }
 
 
-int maxIndex(int *array, int length) {
-	int index = -1;
-	int max = -1;
-	for (int i = 0; i < length; i++) {
-		if (array[i] > max) {
-			max = array[i];
-			index = i;
-		}
-	}
-	return index;
-}
-
 bool childExist(int v, Graph g, int numV) {
 	for (int w = v+1; w < numV; w++) {
 		if (isEdge(newEdge(v, w), g)) {
@@ -171,7 +172,6 @@ bool childExist(int v, Graph g, int numV) {
 }
 
 void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen) {
-	         
     for (Vertex w = v+1; w < numV; w++) {
        	if (isEdge(newEdge(v, w), g)) {
           	dfsR(g, w, numV, counter+1, maxSeen);
@@ -181,40 +181,19 @@ void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen) {
 				}
        		}
        	} 
-       	
     }
-    
     return;
 }
 
 
-int* dfs(Graph g, Vertex rootv, int numV) {
-    int *visited = mallocArray(numV); 
+int dfs(Graph g, Vertex rootv, int numV) {
     int maxSeen = 0;
     int counter = 0;
     Vertex startv = rootv;                      
     dfsR(g, startv, numV, counter+1, &maxSeen);
-    printf("maxSeen = %d", maxSeen);
+    printf("maxSeen = %d\n", maxSeen);
     // TODO: support disconnected graphs
-    /*
-	printf("\nVisited array : ");
-	for (int i = 0; i < numV; i++) {
-		printf("%d ", visited[i]);
-	}
-	*/
-	printf("\n");
-   return visited;
-}
-
-
-char **freeDict(char **dict, int wordCount) {
-	for (int i = 0; i < wordCount; i++) {
-		free(dict[i]);
-		dict[i] = NULL;
-	}
-	free(dict);
-	dict = NULL;
-	return dict;
+   return maxSeen;
 }
 
 
@@ -224,15 +203,13 @@ int main(void) {
 	int wordCount = takeInput(&dict, INITIAL_LENGTH);
     Graph graph = createGraph(dict, wordCount);
     //printGraph(dict, wordCount, graph);
-    int *visited = NULL;
+    int maxSeen = -1;
     if (wordCount > 0) {
-    	visited = dfs(graph, 0, wordCount);
+    	maxSeen = dfs(graph, 0, wordCount);
 		
 		//printArray("Longest ladder length: _\nLongest ladders:\n", visited, wordCount, dict);
     }
     dict = freeDict(dict, wordCount);
-    free(visited);
-    visited = NULL;
 	return EXIT_SUCCESS;
 }
 
