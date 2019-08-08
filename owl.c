@@ -172,19 +172,35 @@ bool childExist(int v, Graph g, int numV) {
 	return false;
 }
 
-void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen, int *visited, int *cursor) {
+void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen, int *visited, int *cursor, Quack *quackArray, int *path) {
 	visited[*cursor] = v;
     for (Vertex w = v+1; w < numV; w++) {
        	if (isEdge(newEdge(v, w), g)) {
        		*cursor = *cursor + 1;
-          	dfsR(g, w, numV, counter+1, maxSeen, visited, cursor);
+          	dfsR(g, w, numV, counter+1, maxSeen, visited, cursor, quackArray, path);
           	*cursor = *cursor - 1;
           	if (!childExist(w, g, numV)) {
 		   		if (*maxSeen < counter+1) {
 					*maxSeen = counter+1;
+					
+					*path = 0;
+					destroyQuack(quackArray[*path]);
+					quackArray[*path] = createQuack();
+					for (int i = 0; visited[i] != -1; i++) {
+						qush(visited[i], quackArray[*path]);
+					}
 				}
 				if (counter+1 == *maxSeen) {
-					printf("max node found %d | ", counter+1);
+					
+					*path = *path + 1;
+					destroyQuack(quackArray[*path]);
+					quackArray[*path] = createQuack();
+					for (int i = 0; visited[i] != -1; i++) {
+						qush(visited[i], quackArray[*path]);
+					}
+					
+					
+					printf("\nmax node found %d | ", counter+1);
 					for (int i = 0; i < numV; i++) {
     					printf("%d->", visited[i]);
     				}
@@ -197,15 +213,17 @@ void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen, int *visited, 
 }
 
 
-int dfs(Graph g, Vertex rootv, int numV) {
+int dfs(Graph g, Vertex rootv, int numV, Quack *quackArray) {
     int maxSeen = 1;
     int counter = 0;
     int *visited = mallocArray(numV); //TODO FREE THIS 
     int cursor = 0;
-    Vertex startv = rootv;                      
-    dfsR(g, startv, numV, counter+1, &maxSeen, visited, &cursor);
+    Vertex startv = rootv; 
+    int path = 0;                     
+    dfsR(g, startv, numV, counter+1, &maxSeen, visited, &cursor, quackArray, &path);
     
-    printf("maxSeen = %d, cursor = %d \n", maxSeen, cursor);
+    printf("maxSeen = %d, cursor = %d, path = %d \n", maxSeen, cursor, path);
+    showQuack(quackArray[0]);
     // TODO: support disconnected graphs
    return maxSeen;
 }
@@ -224,12 +242,12 @@ int main(void) {
     dict = performMalloc(INITIAL_LENGTH);
 	int wordCount = takeInput(&dict, INITIAL_LENGTH);
     Graph graph = createGraph(dict, wordCount);
-    //Quack quackArray[MAXIMUM_PATHS];
-    //createQuackArray(quackArray);
+    Quack quackArray[MAXIMUM_PATHS];
+    createQuackArray(quackArray);
     
     //printGraph(dict, wordCount, graph);
     //int maxSeen = -1;
-    int newMaxSeen = dfs(graph, 0, wordCount);
+    int newMaxSeen = dfs(graph, 0, wordCount, quackArray);
     /*
     if (wordCount > 0) {
     	for (int i = 0; i < wordCount; i++) {
