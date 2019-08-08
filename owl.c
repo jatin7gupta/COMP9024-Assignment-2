@@ -145,7 +145,7 @@ Graph createGraph(char **dict, int wordCount){
 void printGraph(char **dict, int wordCount, Graph graph) {
 	printf("Dictionary\n");
 	for (int i = 0; i < wordCount; i++) {
-		printf("%2d: %s\n", i, dict[i]);
+		printf("%d: %s\n", i, dict[i]);
 	}
 	printf("Ordered Word Ladder Graph\n");
 	showGraph(graph);
@@ -204,19 +204,19 @@ void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen, int *visited, 
 }
 
 
-int dfs(Graph g, Vertex rootv, int numV, Quack *quackArray, int *path) {
-    int maxSeen = 1;
+int dfs(Graph g, Vertex rootv, int numV, Quack *quackArray, int *path, int *maxSeen) {
+    //int maxSeen = 1;
     int counter = 0;
     int *visited = mallocArray(numV); //TODO FREE THIS 
     int cursor = 0;
     Vertex startv = rootv; 
     //int path = 0;                     
-    dfsR(g, startv, numV, counter+1, &maxSeen, visited, &cursor, quackArray, path);
+    dfsR(g, startv, numV, counter+1, maxSeen, visited, &cursor, quackArray, path);
     
-    //printf("maxSeen = %d, cursor = %d, path = %d \n", maxSeen, cursor, *path);
+    //printf("maxSeen = %d, cursor = %d, path = %d \n", *maxSeen, cursor, *path);
     //showQuack(quackArray[0]);
     // TODO: support disconnected graphs
-   return maxSeen;
+   return *maxSeen;
 }
 
 
@@ -230,12 +230,16 @@ Quack *createQuackArray(Quack *quackArray) {
 
 void printArray(int maxSeen, int n, char **dict, Quack *quackArray, int path) {
 	printf("Longest ladder length: %d\nLongest ladders:\n", maxSeen);
-	//for (int i = 0; i < n; i++) {
-	//	if (array[i] != -1) {
-	//		printf("%s -> ", dict[i]);
-	//	}
-	//}
-	printf("\n");
+	for (int i = 0; i < path; i++) {
+		printf("%2d: ", i+1);
+		int j;
+		for (j = 0; j < maxSeen-1; j++) {
+			printf("%s -> ", dict[pop(quackArray[i])]);
+		}
+		printf("%s\n", dict[pop(quackArray[i])]);
+		//printf("\n");
+	}
+	//printf("\n");
 }
 
 
@@ -252,15 +256,15 @@ int main(void) {
     
     if (wordCount > 0) {
     	for (int i = 0; i < wordCount; i++) {
-    		int newMaxSeen = dfs(graph, i, wordCount, quackArray, &path);
+    		int newMaxSeen = dfs(graph, i, wordCount, quackArray, &path, &maxSeen);
     		if (newMaxSeen > maxSeen) {
     			maxSeen = newMaxSeen;
     		}
     	}
 		printArray( maxSeen, wordCount, dict, quackArray, path);
     }
-    printf("path %d \n", path);
-    printf("maxseen %d \n", maxSeen);
+    //printf("path %d \n", path);
+    //printf("maxseen %d \n", maxSeen);
     dict = freeDict(dict, wordCount);
     
 	return EXIT_SUCCESS;
