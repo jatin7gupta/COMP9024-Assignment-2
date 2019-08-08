@@ -180,8 +180,7 @@ void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen, int *visited, 
 					for (int i = 0; visited[i] != -1; i++) {
 						qush(visited[i], quackArray[*path]);
 					}
-				}
-				if (counter+1 == *maxSeen) {
+				} else if (counter+1 == *maxSeen) {
 					
 					*path = *path + 1;
 					destroyQuack(quackArray[*path]);
@@ -230,7 +229,7 @@ Quack *createQuackArray(Quack *quackArray) {
 
 void printArray(int maxSeen, int n, char **dict, Quack *quackArray, int path) {
 	printf("Longest ladder length: %d\nLongest ladders:\n", maxSeen);
-	for (int i = 0; i < path; i++) {
+	for (int i = 0; i <= path; i++) {
 		printf("%2d: ", i+1);
 		int j;
 		for (j = 0; j < maxSeen-1; j++) {
