@@ -179,6 +179,9 @@ void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen) {
 		   		if (*maxSeen < counter+1) {
 					*maxSeen = counter+1;
 				}
+				if (counter+1 == *maxSeen) {
+					printf("max node found %d | ", counter+1);
+				}
        		}
        	} 
     }
@@ -205,8 +208,9 @@ int main(void) {
     //printGraph(dict, wordCount, graph);
     int maxSeen = -1;
     if (wordCount > 0) {
-    	maxSeen = dfs(graph, 0, wordCount);
-		
+    	for (int i = 0; i < wordCount; i++) {
+    		maxSeen = dfs(graph, i, wordCount);
+    	}
 		//printArray("Longest ladder length: _\nLongest ladders:\n", visited, wordCount, dict);
     }
     dict = freeDict(dict, wordCount);
