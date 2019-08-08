@@ -252,17 +252,23 @@ int main(void) {
     int path = 0;
     printGraph(dict, wordCount, graph);
     int maxSeen = -1;
-    if (wordCount == 1) {
-    	printf("Longest ladder length: 1\nLongest ladders:\n");
-    	printf(" 1: %s\n", dict[0]);
-    } else if (wordCount > 0) {
+    if (wordCount > 0) {
     	for (int i = 0; i < wordCount; i++) {
     		int newMaxSeen = dfs(graph, i, wordCount, quackArray, &path, &maxSeen);
     		if (newMaxSeen > maxSeen) {
     			maxSeen = newMaxSeen;
     		}
     	}
-		printArray( maxSeen, wordCount, dict, quackArray, path);
+    	if (maxSeen == -1) {
+    		printf("Longest ladder length: 1\nLongest ladders:\n");
+    		for (int i = 0; i < wordCount; i++) {
+    			printf("%2d: %s\n",i+1, dict[i]);
+    		}
+    		
+    	} else {
+    		printArray( maxSeen, wordCount, dict, quackArray, path);
+    	}
+		
     }
     //printf("path %d \n", path);
     //printf("maxseen %d \n", maxSeen);
