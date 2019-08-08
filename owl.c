@@ -145,22 +145,13 @@ Graph createGraph(char **dict, int wordCount){
 void printGraph(char **dict, int wordCount, Graph graph) {
 	printf("Dictionary\n");
 	for (int i = 0; i < wordCount; i++) {
-		printf("%d: %s\n", i, dict[i]);
+		printf("%2d: %s\n", i, dict[i]);
 	}
 	printf("Ordered Word Ladder Graph\n");
 	showGraph(graph);
 }
 
 
-void printArray(char *string, int *array, int n, char **dict) {
-	printf("%s", string);
-	for (int i = 0; i < n; i++) {
-		if (array[i] != -1) {
-			printf("%s -> ", dict[i]);
-		}
-	}
-	printf("\n");
-}
 
 
 bool childExist(int v, Graph g, int numV) {
@@ -200,11 +191,11 @@ void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen, int *visited, 
 					}
 					
 					
-					printf("\nmax node found %d | ", counter+1);
+					//printf("\nmax node found %d | ", counter+1);
 					for (int i = 0; i < numV; i++) {
-    					printf("%d->", visited[i]);
+    					//printf("%d->", visited[i]);
     				}
-    				printf(" --| cursor = %d ", *cursor);
+    				//printf(" --| cursor = %d ", *cursor);
 				}
        		}
        	} 
@@ -213,17 +204,17 @@ void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen, int *visited, 
 }
 
 
-int dfs(Graph g, Vertex rootv, int numV, Quack *quackArray) {
+int dfs(Graph g, Vertex rootv, int numV, Quack *quackArray, int *path) {
     int maxSeen = 1;
     int counter = 0;
     int *visited = mallocArray(numV); //TODO FREE THIS 
     int cursor = 0;
     Vertex startv = rootv; 
-    int path = 0;                     
-    dfsR(g, startv, numV, counter+1, &maxSeen, visited, &cursor, quackArray, &path);
+    //int path = 0;                     
+    dfsR(g, startv, numV, counter+1, &maxSeen, visited, &cursor, quackArray, path);
     
-    printf("maxSeen = %d, cursor = %d, path = %d \n", maxSeen, cursor, path);
-    showQuack(quackArray[0]);
+    //printf("maxSeen = %d, cursor = %d, path = %d \n", maxSeen, cursor, *path);
+    //showQuack(quackArray[0]);
     // TODO: support disconnected graphs
    return maxSeen;
 }
@@ -237,6 +228,17 @@ Quack *createQuackArray(Quack *quackArray) {
 }
 
 
+void printArray(int maxSeen, int n, char **dict, Quack *quackArray, int path) {
+	printf("Longest ladder length: %d\nLongest ladders:\n", maxSeen);
+	//for (int i = 0; i < n; i++) {
+	//	if (array[i] != -1) {
+	//		printf("%s -> ", dict[i]);
+	//	}
+	//}
+	printf("\n");
+}
+
+
 int main(void) {
     char **dict = NULL;
     dict = performMalloc(INITIAL_LENGTH);
@@ -244,21 +246,21 @@ int main(void) {
     Graph graph = createGraph(dict, wordCount);
     Quack quackArray[MAXIMUM_PATHS];
     createQuackArray(quackArray);
+    int path = 0;
+    printGraph(dict, wordCount, graph);
+    int maxSeen = -1;
     
-    //printGraph(dict, wordCount, graph);
-    //int maxSeen = -1;
-    int newMaxSeen = dfs(graph, 0, wordCount, quackArray);
-    /*
     if (wordCount > 0) {
     	for (int i = 0; i < wordCount; i++) {
-    		int newMaxSeen = dfs(graph, i, wordCount);
+    		int newMaxSeen = dfs(graph, i, wordCount, quackArray, &path);
     		if (newMaxSeen > maxSeen) {
     			maxSeen = newMaxSeen;
     		}
     	}
-		//printArray("Longest ladder length: %d\nLongest ladders:\n", maxSeen, wordCount, dict);
+		printArray( maxSeen, wordCount, dict, quackArray, path);
     }
-    */
+    printf("path %d \n", path);
+    printf("maxseen %d \n", maxSeen);
     dict = freeDict(dict, wordCount);
     
 	return EXIT_SUCCESS;
