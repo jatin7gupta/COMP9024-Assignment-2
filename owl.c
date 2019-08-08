@@ -170,12 +170,11 @@ bool childExist(int v, Graph g, int numV) {
 	return false;
 }
 
-void dfsR(Graph g, Vertex v, int numV, int *order, int counter, int *maxSeen) {
+void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen) {
 	         
-    *order = *order+1;
     for (Vertex w = v+1; w < numV; w++) {
        	if (isEdge(newEdge(v, w), g)) {
-          	dfsR(g, w, numV, order, counter+1, maxSeen);
+          	dfsR(g, w, numV, counter+1, maxSeen);
           	if (!childExist(w, g, numV)) {
 		   		if (*maxSeen < counter+1) {
 					*maxSeen = counter+1;
@@ -191,11 +190,10 @@ void dfsR(Graph g, Vertex v, int numV, int *order, int counter, int *maxSeen) {
 
 int* dfs(Graph g, Vertex rootv, int numV) {
     int *visited = mallocArray(numV); 
-    int order = 0;
     int maxSeen = 0;
     int counter = 0;
     Vertex startv = rootv;                      
-    dfsR(g, startv, numV, &order, counter+1, &maxSeen);
+    dfsR(g, startv, numV, counter+1, &maxSeen);
     printf("maxSeen = %d", maxSeen);
     // TODO: support disconnected graphs
     /*
