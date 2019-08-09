@@ -361,6 +361,7 @@ int main(void) {
     
     // freeing memory
     dict = freeDict(dict, wordCount);
+    graph = freeGraph(graph);
     destroyQuackArray(quackArray);
 	return EXIT_SUCCESS;
 }
