@@ -22,7 +22,7 @@ Link to spec: https://webcms3.cse.unsw.edu.au/COMP9024/19T2/resources/28573
 /*
 Input: array of characters
 Return Value: int
-Usage: Takes a array of word, returns the length of the array 
+Usage: Takes a array of word, returns the length of the array (integer)
 */
 int len(char *word) {
 	return strlen(word);
@@ -30,7 +30,7 @@ int len(char *word) {
 
 
 /*
-Input: character pointer array and integer count of words
+Input: character pointer array and count of words (integer)
 Return Value: 2d character pointer array which has been freed and now is NULL
 Usage: Free up the malloc-ed space
 */
@@ -46,7 +46,7 @@ char **freeDict(char **dict, int wordCount) {
 
 
 /*
-Input: integer, to give the malloc size
+Input: malloc size (integer)
 Return Value: character pointer array
 Usage: To allocate memory to the dictionary
 */
@@ -61,7 +61,7 @@ char **performMalloc(int length) {
 
 
 /*
-Input: integer, to give the malloc size
+Input: malloc size (integer)
 Return Value: array of character of the given size
 Usage: to give memory to a word as array of characters
 */
@@ -76,7 +76,7 @@ char *mallocWord(int length) {
 
 
 /*
-Input: array of char pointers and integer, to give the realloc size
+Input: array of char pointers and realloc size (integer)
 Return Value: array of character pointers after giving them new memory of the given size
 Usage: to give memory to each word and increase by twice when they fill up
 */
@@ -91,7 +91,7 @@ char **performRealloc(char **dict, int length) {
 
 
 /*
-Input: integer, to give the malloc size
+Input: malloc size (integer)
 Return Value: array of integers after giving them memory of the given size and assigning each value to -1
 Usage: to make an array and assign them a constant value to all the elements of the array
 */
@@ -150,7 +150,7 @@ bool differByOne(char *firstWord, char *secondWord) {
 }
 
 /*
-Input: pointer to the array of character pointers and integer, initial malloced size 
+Input: pointer to the array of character pointers and initial malloced size  (integer)
 Return Value: integer, the number of words which has been read by the function 
 Usage: to read input from stdin and store them into an array of character pointers and returning the caller the number of words read
 */
@@ -178,7 +178,7 @@ int takeInput(char ***dict, int initialLength) {
 
 
 /*
-Input: array of pointer to the character array and integer, count of the number of words
+Input: array of pointer to the character array and count of the number of words (integer)
 Return Value: Graph which has the vertices and edges
 Usage: to create the graph for the read words
 */
@@ -196,7 +196,7 @@ Graph createGraph(char **dict, int wordCount){
 
 
 /*
-Input: array of pointer to the character array and integer, count of the number of words and the Graph 
+Input: array of character pointer varables, word count (integer) and Graph
 Return Value: void
 Usage: to print the value of the of all the words in the dict and call the showGraph from the Graph ADT
 */
@@ -211,9 +211,9 @@ void printGraph(char **dict, int wordCount, Graph graph) {
 
 
 /*
-Input: array of pointer to the character array and integer, count of the number of words and the Graph 
-Return Value: void
-Usage: to print the value of the of all the words in the dict and call the showGraph from the Graph ADT
+Input: current vertix (integer), Graph, number of vertices (integer) 
+Return Value: true if a child which has a greater vertix value exists else false
+Usage: to stop recursion at the leaf nodes
 */
 bool childExist(int v, Graph g, int numV) {
 	for (int w = v+1; w < numV; w++) {
@@ -326,15 +326,18 @@ void printArray(int maxSeen, char **dict, Quack *quackArray, int path) {
 int main(void) {
     char **dict = NULL;
     dict = performMalloc(INITIAL_LENGTH);
-    
+    // taking input from stdin
 	int wordCount = takeInput(&dict, INITIAL_LENGTH);
 	
+	// initilizing the variables
     Graph graph = createGraph(dict, wordCount);
     Quack quackArray[MAXIMUM_PATHS];
     createQuackArray(quackArray);
     
+    // printing graph
     printGraph(dict, wordCount, graph);
 
+	// initilizing for searching
     int path = 0;
     int maxSeen = -1;
     if (wordCount > 0) {
@@ -353,6 +356,8 @@ int main(void) {
     		printArray( maxSeen, dict, quackArray, path);
     	}
     }
+    
+    // freeing memory
     dict = freeDict(dict, wordCount);
     destroyQuackArray(quackArray);
 	return EXIT_SUCCESS;
