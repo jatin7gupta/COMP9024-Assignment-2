@@ -18,6 +18,8 @@ Link to spec: https://webcms3.cse.unsw.edu.au/COMP9024/19T2/resources/28573
 #define INITIAL_LENGTH 8
 #define WORD_LENGTH 21
 #define MAXIMUM_PATHS 1000
+#define PRINT_SIZE 99
+#define FACTOR 2
 
 /*
 Input: array of characters
@@ -81,7 +83,7 @@ Return Value: array of character pointers after giving them new memory of the gi
 Usage: to give memory to each word and increase by twice when they fill up
 */
 char **performRealloc(char **dict, int length) {
-	dict = realloc(dict, length * 2 * sizeof(char *));
+	dict = realloc(dict, length * FACTOR * sizeof(char *));
 	if (dict == NULL) {
 		fprintf(stderr, "Ran out of memory, Quiting");
 		exit(EXIT_FAILURE);
@@ -102,7 +104,7 @@ int *mallocArray(int length) {
 		exit(EXIT_FAILURE);
 	}
 	for (int i = 0; i < length; i++) {
-		block[i] = -1;
+		block[i] = UNVISITED;
 	}
 	return block;
 }
@@ -312,7 +314,7 @@ Usage: print the longest paths in the graph with dictionary
 */
 void printArray(int maxSeen, char **dict, Quack *quackArray, int path) {
 	printf("Longest ladder length: %d\nLongest ladders:\n", maxSeen);
-	for (int i = 0; i <= path && i<99; i++) {
+	for (int i = 0; i <= path && i < PRINT_SIZE; i++) {
 		printf("%2d: ", i+1);
 		int j;
 		for (j = 0; j < maxSeen-1; j++) {
@@ -339,7 +341,7 @@ int main(void) {
 
 	// initilizing for searching
     int path = 0;
-    int maxSeen = -1;
+    int maxSeen = UNVISITED;
     if (wordCount > 0) {
     	for (int i = 0; i < wordCount; i++) {
     		int newMaxSeen = dfs(graph, i, wordCount, quackArray, &path, &maxSeen);
@@ -347,9 +349,9 @@ int main(void) {
     			maxSeen = newMaxSeen;
     		}
     	}
-    	if (maxSeen == -1) {
+    	if (maxSeen == UNVISITED) {
     		printf("Longest ladder length: 1\nLongest ladders:\n");
-    		for (int i = 0; i < wordCount && i < 99; i++) {
+    		for (int i = 0; i < wordCount && i < PRINT_SIZE; i++) {
     			printf("%2d: %s\n",i+1, dict[i]);
     		}
     	} else {
