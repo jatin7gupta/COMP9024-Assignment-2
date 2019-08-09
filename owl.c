@@ -17,7 +17,7 @@ Link to spec: https://webcms3.cse.unsw.edu.au/COMP9024/19T2/resources/28573
 
 #define INITIAL_LENGTH 8
 #define WORD_LENGTH 21
-#define MAXIMUM_PATHS 100
+#define MAXIMUM_PATHS 1000
 
 /*
 Input: array of characters
@@ -276,7 +276,6 @@ int dfs(Graph g, Vertex rootv, int numV, Quack *quackArray, int *path, int *maxS
     Vertex startv = rootv;                    
     dfsR(g, startv, numV, counter+1, maxSeen, visited, &cursor, quackArray, path);
     
-    //printf("maxSeen = %d, cursor = %d, path = %d \n", *maxSeen, cursor, *path);
     free(visited);
    return *maxSeen;
 }
@@ -284,16 +283,27 @@ int dfs(Graph g, Vertex rootv, int numV, Quack *quackArray, int *path, int *maxS
 
 /*
 Input: Pointer to the quack array   
-Return Value: Initiated quacks in all the indexes of the array
+Return Value: void
 Usage: to give memory to all the quacks at once
 */
-Quack *createQuackArray(Quack *quackArray) {
+void createQuackArray(Quack *quackArray) {
 	for (int i = 0; i < MAXIMUM_PATHS; i++) {
 		quackArray[i] = createQuack();
 	}
-	return quackArray;
 }
 
+
+/*
+Input: Pointer to the quack array   
+Return Value: void
+Usage: to free memory to all the quacks at once
+*/
+void destroyQuackArray(Quack *quackArray) {
+	for (int i = 0; i < MAXIMUM_PATHS; i++) {
+		quackArray[i] = destroyQuack(quackArray[i]);
+	}
+	quackArray = NULL;
+}
 
 /*
 Input: maximum seen value of length of path (integer), dictionary of words stored in array of character pointers, array of quacks, and number of paths (integer)
@@ -316,12 +326,16 @@ void printArray(int maxSeen, char **dict, Quack *quackArray, int path) {
 int main(void) {
     char **dict = NULL;
     dict = performMalloc(INITIAL_LENGTH);
+    
 	int wordCount = takeInput(&dict, INITIAL_LENGTH);
+	
     Graph graph = createGraph(dict, wordCount);
     Quack quackArray[MAXIMUM_PATHS];
     createQuackArray(quackArray);
-    int path = 0;
+    
     printGraph(dict, wordCount, graph);
+
+    int path = 0;
     int maxSeen = -1;
     if (wordCount > 0) {
     	for (int i = 0; i < wordCount; i++) {
@@ -335,12 +349,11 @@ int main(void) {
     		for (int i = 0; i < wordCount && i < 99; i++) {
     			printf("%2d: %s\n",i+1, dict[i]);
     		}
-    		
     	} else {
     		printArray( maxSeen, dict, quackArray, path);
     	}
     }
     dict = freeDict(dict, wordCount);
-    
+    destroyQuackArray(quackArray);
 	return EXIT_SUCCESS;
 }
