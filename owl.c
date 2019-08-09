@@ -344,9 +344,3 @@ int main(void) {
     
 	return EXIT_SUCCESS;
 }
-
-//TODO: number of paths DONE
-//TODO: use %2d and trailing \n DONE
-//TODO: free mallocs 
-//TODO: handle duplicates before dict DONE
-//TODO: handle empty dict DONE
