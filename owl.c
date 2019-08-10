@@ -152,6 +152,7 @@ bool differByOne(char *firstWord, char *secondWord) {
 	return false;
 }
 
+
 /*
 Input: pointer to the array of character pointers and initial malloced size  (integer)
 Return Value: integer, the number of words which has been read by the function 
@@ -163,7 +164,7 @@ int takeInput(char ***dict, int initialLength) {
 	while (fscanf(stdin, "%s", word) == 1) {
 		int inputLength = strlen(word);
 		if (wordCounter > 0) {
-			if (strcmp((*dict)[wordCounter-1], word) != 0) {
+			if (strcmp((*dict)[wordCounter-1], word) != 0) { // check for duplication of words
 				(*dict)[wordCounter] = mallocWord(inputLength+1);
 				strcpy((*dict)[wordCounter++], word);
 			}
@@ -237,21 +238,21 @@ Usage: to recurse till the node when we do not have any paths to go further and 
 */
 void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen, int *visited, int *cursor, Quack *quackArray, int *path) {
 	visited[*cursor] = v;
-    for (Vertex w = v+1; w < numV; w++) {
+    for (Vertex w = v+1; w < numV; w++) { // only looking for alphabetically superior words
        	if (isEdge(newEdge(v, w), g)) {
        		*cursor = *cursor + 1;
           	dfsR(g, w, numV, counter+1, maxSeen, visited, cursor, quackArray, path);
           	*cursor = *cursor - 1;
           	if (!childExist(w, g, numV)) {
-		   		if (*maxSeen < counter+1) { 			// New Maximum path found
+		   		if (*maxSeen < counter+1) { // New Maximum path found
 					*maxSeen = counter+1;
 					
-					*path = 0;							// start with the new path
+					*path = 0; // start with the new path
 					makeEmptyQuack(quackArray[*path]);
 					for (int i = 0; i < numV; i++) {
 						qush(visited[i], quackArray[*path]);
 					}
-				} else if (counter+1 == *maxSeen) { 	// new path with same maximum path found
+				} else if (counter+1 == *maxSeen) { // new path with same maximum path found
 					*path = *path + 1;
 					makeEmptyQuack(quackArray[*path]);
 					for (int i = 0; i < numV; i++) {
@@ -326,7 +327,7 @@ int main(void) {
     char **dict = NULL;
     dict = performMalloc(INITIAL_DICT_LENGTH);
     
-    // taking input from stdin
+	// taking input from stdin
 	int wordCount = takeInput(&dict, INITIAL_DICT_LENGTH);
 	
 	// initilizing the variables
@@ -334,7 +335,7 @@ int main(void) {
     Quack quackArray[MAXIMUM_PATHS];
     createQuackArray(quackArray);
     
-    // printing graph
+	// printing graph
     printGraph(dict, wordCount, graph);
 
 	// initilizing for searching
