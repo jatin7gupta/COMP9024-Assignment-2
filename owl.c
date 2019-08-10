@@ -1,10 +1,11 @@
 /*
 Name: Jatin Gupta
 zID / email: z5240221@ad.unsw.edu.au
-Date last modified: 09/08/2019
+Date last modified: 10/08/2019
 Name of course and session: COMP9024 19T2
 Task: OWL
 Link to spec: https://webcms3.cse.unsw.edu.au/COMP9024/19T2/resources/28573 
+NOTE: code is inspired by Professor Albert's Lecture notes
 */
 
 #include <stdio.h>
@@ -15,7 +16,7 @@ Link to spec: https://webcms3.cse.unsw.edu.au/COMP9024/19T2/resources/28573
 #include "Quack.h"
 
 
-#define INITIAL_LENGTH 8
+#define INITIAL_DICT_LENGTH 8
 #define WORD_LENGTH 21
 #define MAXIMUM_PATHS 1000
 #define PRINT_SIZE 99
@@ -170,9 +171,9 @@ int takeInput(char ***dict, int initialLength) {
 			(*dict)[wordCounter] = mallocWord(inputLength+1);
 			strcpy((*dict)[wordCounter++], word);			
 		}
-		if (wordCounter == initialLength) {
+		if (wordCounter == initialLength) {  // Doubling the size of the Dictionary
 			*dict = performRealloc(*dict, initialLength);	
-			initialLength = initialLength * 2;
+			initialLength = initialLength * FACTOR;
 		}
 	}
 	return wordCounter;
@@ -242,20 +243,17 @@ void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen, int *visited, 
           	dfsR(g, w, numV, counter+1, maxSeen, visited, cursor, quackArray, path);
           	*cursor = *cursor - 1;
           	if (!childExist(w, g, numV)) {
-		   		if (*maxSeen < counter+1) {
+		   		if (*maxSeen < counter+1) { 			// New Maximum path found
 					*maxSeen = counter+1;
 					
-					*path = 0;
+					*path = 0;							// start with the new path
 					makeEmptyQuack(quackArray[*path]);
-					quackArray[*path] = createQuack();
 					for (int i = 0; i < numV; i++) {
 						qush(visited[i], quackArray[*path]);
 					}
-				} else if (counter+1 == *maxSeen) {
-					
+				} else if (counter+1 == *maxSeen) { 	// new path with same maximum path found
 					*path = *path + 1;
 					makeEmptyQuack(quackArray[*path]);
-					quackArray[*path] = createQuack();
 					for (int i = 0; i < numV; i++) {
 						qush(visited[i], quackArray[*path]);
 					}
@@ -268,18 +266,17 @@ void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen, int *visited, 
 
 /*
 Input: Graph, vertix to start with (integer), number of vertixes (integer), array of quacks to store the paths (array of quacks), number of paths (pointer to the integer), previous 			maximum seen value of length of path (pointer to the integer)   
-Return Value: maximum seen value of length of path
+Return Value: void
 Usage: to call the recursive function and get the values set/destroy before/after calling it
 */
-int dfs(Graph g, Vertex rootv, int numV, Quack *quackArray, int *path, int *maxSeen) {
+void dfs(Graph g, Vertex rootv, int numV, Quack *quackArray, int *path, int *maxSeen) {
     int counter = 0;
     int *visited = mallocArray(numV); 
     int cursor = 0;
-    Vertex startv = rootv;                    
-    dfsR(g, startv, numV, counter+1, maxSeen, visited, &cursor, quackArray, path);
+                        
+    dfsR(g, rootv, numV, counter+1, maxSeen, visited, &cursor, quackArray, path);
     
     free(visited);
-   return *maxSeen;
 }
 
 
@@ -327,9 +324,10 @@ void printArray(int maxSeen, char **dict, Quack *quackArray, int path) {
 
 int main(void) {
     char **dict = NULL;
-    dict = performMalloc(INITIAL_LENGTH);
+    dict = performMalloc(INITIAL_DICT_LENGTH);
+    
     // taking input from stdin
-	int wordCount = takeInput(&dict, INITIAL_LENGTH);
+	int wordCount = takeInput(&dict, INITIAL_DICT_LENGTH);
 	
 	// initilizing the variables
     Graph graph = createGraph(dict, wordCount);
@@ -344,10 +342,7 @@ int main(void) {
     int maxSeen = UNVISITED;
     if (wordCount > 0) {
     	for (int i = 0; i < wordCount; i++) {
-    		int newMaxSeen = dfs(graph, i, wordCount, quackArray, &path, &maxSeen);
-    		if (newMaxSeen > maxSeen) {
-    			maxSeen = newMaxSeen;
-    		}
+    		dfs(graph, i, wordCount, quackArray, &path, &maxSeen);
     	}
     	if (maxSeen == UNVISITED) {
     		printf("Longest ladder length: 1\nLongest ladders:\n");
