@@ -1,0 +1,530 @@
+
+!!section banner
+#######  #####  #         ###    #####   #####     #
+#       #     # #    #   #   #  #     # #     #   ##
+#             # #    #  # #   #       #       #  # #
+ #####   #####  ####### #  #  #  #####   #####     #
+      # #            #  #   # # #       #          #
+#     # #            #   #   #  #       #          #
+ #####  #######      #    ###   ####### #######  #####
+
+5240221 Gupta, Jatin                            8543   COMPAS COMPSS
+
+Submissions:-
+
+S 0     Fri Aug  9 18:41:18 2019        5240221 all ass2 -2:-5
+S 1     Fri Aug  9 20:35:35 2019        5240221 all ass2 -2:-3
+S 2     Sat Aug 10 12:10:35 2019        5240221 all ass2 -1:-11
+S 0     Sat Aug 10 19:17:01 2019        5240221 all ass2 -1:-4
+
+Sun Aug 25 14:17:56 2019                ## wagner.orchestra.cse.unsw.EDU.AU ##
+!!section listing
+-rw-r--r-- z5240221/z5240221 10372 2019-08-10 19:16 owl.c
+
+===============================================================================
+-rw-r----- 1 cs9024 cs9024 10372 Aug 25 14:17 owl.c
+===============================================================================
+
+     1  /*
+     2  Name: Jatin Gupta
+     3  zID / email: z5240221@ad.unsw.edu.au
+     4  Date last modified: 10/08/2019
+     5  Name of course and session: COMP9024 19T2
+     6  Task: OWL
+     7  Link to spec: https://webcms3.cse.unsw.edu.au/COMP9024/19T2/resources/28573
+     8  NOTE: code is inspired by Professor Albert's Lecture notes
+     9  */
+    10
+    11  #include <stdio.h>
+    12  #include <stdlib.h>
+    13  #include <stdbool.h>
+    14  #include <string.h>
+    15  #include "Graph.h"
+    16  #include "Quack.h"
+    17
+    18
+    19  #define INITIAL_DICT_LENGTH 8
+    20  #define WORD_LENGTH 21
+    21  #define MAXIMUM_PATHS 1000
+    22  #define PRINT_SIZE 99
+    23  #define FACTOR 2
+    24
+    25  /*
+    26  Input: array of characters
+    27  Return Value: int
+    28  Usage: Takes a array of word, returns the length of the array (integer)
+    29  */
+    30  int len(char *word) {
+    31          return strlen(word);
+    32  }
+        ^
++ =================================================================================================== +
++ I don't understand the point of doing this when you could just call the strlen function in the      +
++ first place? Function calls will introduce extra compute time when optimisations are not turned on. +
++ =================================================================================================== +
+    33
+    34
+    35  /*
+    36  Input: character pointer array and count of words (integer)
+    37  Return Value: 2d character pointer array which has been freed and now is NULL
+    38  Usage: Free up the malloc-ed space
+    39  */
+    40  char **freeDict(char **dict, int wordCount) {
+    41          for (int i = 0; i < wordCount; i++) {
+    42                  free(dict[i]);
+    43                  dict[i] = NULL;
+    44          }
+    45          free(dict);
+    46          dict = NULL;
+    47          return dict;
+    48  }
+    49
+    50
+    51  /*
+    52  Input: malloc size (integer)
+    53  Return Value: character pointer array
+    54  Usage: To allocate memory to the dictionary
+    55  */
+    56  char **performMalloc(int length) {
+    57          char **dict = malloc(length * sizeof(char *));
+    58          if (dict == NULL) {
+    59                  fprintf(stderr, "Ran out of memory, Quiting");
+    60                  exit(EXIT_FAILURE);
+    61          }
+    62          return dict;
+    63  }
+        ^
+        + =========================================================== +
+        + Now this is a suitable wrapper around an existing function. +
+        + =========================================================== +
+    64
+    65
+    66  /*
+    67  Input: malloc size (integer)
+    68  Return Value: array of character of the given size
+    69  Usage: to give memory to a word as array of characters
+    70  */
+    71  char *mallocWord(int length) {
+    72          char *block = malloc(length * sizeof(char));
+    73          if (block == NULL) {
+    74                  fprintf(stderr, "Ran out of memory, Quiting");
+    75                  exit(EXIT_FAILURE);
+    76          }
+    77          return block;
+    78  }
+    79
+    80
+    81  /*
+    82  Input: array of char pointers and realloc size (integer)
+    83  Return Value: array of character pointers after giving them new memory of the given size
+    84  Usage: to give memory to each word and increase by twice when they fill up
+    85  */
+    86  char **performRealloc(char **dict, int length) {
+    87          dict = realloc(dict, length * FACTOR * sizeof(char *));
+    88          if (dict == NULL) {
+    89                  fprintf(stderr, "Ran out of memory, Quiting");
+    90                  exit(EXIT_FAILURE);
+    91          }
+    92          return dict;
+    93  }
+    94
+    95
+    96  /*
+    97  Input: malloc size (integer)
+    98  Return Value: array of integers after giving them memory of the given size and assigning each value to -1
+    99  Usage: to make an array and assign them a constant value to all the elements of the array
+   100  */
+   101  int *mallocArray(int length) {
+   102          int *block = malloc(length * sizeof(int));
+   103          if (block == NULL) {
+   104                  fprintf(stderr, "Ran out of memory, Quiting");
+   105                  exit(EXIT_FAILURE);
+   106          }
+   107          for (int i = 0; i < length; i++) {
+   108                  block[i] = UNVISITED;
+   109          }
+   110          return block;
+   111  }
+   112
+   113
+   114  /*
+   115  Input: two array of characters
+   116  Return Value: true if they differ by one, else false. Differ by one is explained in the assignment specs
+   117  Usage: to check if two strings (character arrays) are differing by one or not
+   118  */
+   119  bool differByOne(char *firstWord, char *secondWord) {
+   120          int firstWordLength = len(firstWord);
+   121          int secondWordLength = len(secondWord);
+   122          int changeCount = 0;
+   123          if (firstWordLength == secondWordLength) {
+   124                  for (int f = 0, s = 0; f < firstWordLength && s < secondWordLength; f++, s++) {
+   125                          if (firstWord[f] != secondWord[f]) {
+   126                                  changeCount++;
+   127                          }
+   128                  }
+   129                  if (changeCount == 1) {
+   130                          return true;
+   131                  }
+   132          } else if (abs(firstWordLength - secondWordLength) == 1) {
+   133                  int f = 0;
+   134                  int s = 0;
+   135                  while (f < firstWordLength && s < secondWordLength) {
+   136                          if (firstWord[f] != secondWord[s]) {
+   137                                  if (firstWordLength > secondWordLength) {
+   138                                          f++;
+   139                                  } else {
+   140                                          s++;
+   141                                  }
+   142                                  changeCount++;
+   143                          } else {
+   144                                  f++;
+   145                                  s++;
+   146                          }
+   147                  }
+   148                  if (changeCount == 1 || f == s) {
+   149                          return true;
+   150                  }
+   151          }
+   152          return false;
+   153  }
+   154
+   155
+   156  /*
+   157  Input: pointer to the array of character pointers and initial malloced size  (integer)
+   158  Return Value: integer, the number of words which has been read by the function
+   159  Usage: to read input from stdin and store them into an array of character pointers and returning the caller the number of words read
+   160  */
+   161  int takeInput(char ***dict, int initialLength) {
+   162          int wordCounter = 0;
+   163          char word[WORD_LENGTH];
+   164          while (fscanf(stdin, "%s", word) == 1) {
+   165                  int inputLength = strlen(word);
+   166                  if (wordCounter > 0) {
+   167                          if (strcmp((*dict)[wordCounter-1], word) != 0) { // check for duplication of words
+   168                                  (*dict)[wordCounter] = mallocWord(inputLength+1);
+   169                                  strcpy((*dict)[wordCounter++], word);
+   170                          }
+   171                  } else {
+   172                          (*dict)[wordCounter] = mallocWord(inputLength+1);
+   173                          strcpy((*dict)[wordCounter++], word);
+   174                  }
+   175                  if (wordCounter == initialLength) {  // Doubling the size of the Dictionary
+   176                          *dict = performRealloc(*dict, initialLength);
+   177                          initialLength = initialLength * FACTOR;
+   178                  }
+   179          }
+   180          return wordCounter;
+   181  }
+   182
+   183
+   184  /*
+   185  Input: array of pointer to the character array and count of the number of words (integer)
+   186  Return Value: Graph which has the vertices and edges
+   187  Usage: to create the graph for the read words
+   188  */
+   189  Graph createGraph(char **dict, int wordCount){
+   190      Graph g = newGraph(wordCount);
+   191      for (int i = 0; i < wordCount; i++) {
+   192          for (int j = 0; j < wordCount; j++) {
+   193              if (differByOne(dict[i], dict[j])) {
+   194                  insertEdge(newEdge(i, j), g);
+   195              }
+   196          }
+   197      }
+   198      return g;
+   199  }
+   200
+   201
+   202  /*
+   203  Input: array of character pointer varables, word count (integer) and Graph
+   204  Return Value: void
+   205  Usage: to print the value of the of all the words in the dict and call the showGraph from the Graph ADT
+   206  */
+   207  void printGraph(char **dict, int wordCount, Graph graph) {
+   208          printf("Dictionary\n");
+   209          for (int i = 0; i < wordCount; i++) {
+   210                  printf("%d: %s\n", i, dict[i]);
+   211          }
+   212          printf("Ordered Word Ladder Graph\n");
+   213          showGraph(graph);
+   214  }
+   215
+   216
+   217  /*
+   218  Input: current vertix (integer), Graph, number of vertices (integer)
+   219  Return Value: true if a child which has a greater vertix value exists else false
+   220  Usage: to stop recursion at the leaf nodes
+   221  */
+   222  bool childExist(int v, Graph g, int numV) {
+   223          for (int w = v+1; w < numV; w++) {
+   224                  if (isEdge(newEdge(v, w), g)) {
+   225                          return true;
+   226                  }
+   227          }
+   228          return false;
+   229  }
+   230
+   231
+   232  /*
+   233  Input: Graph, vertix to start with (integer), number of vertixes (integer), a counter which counts the depth (integer), previous maximum seen value, length of path (pointer to the integer),
+   234                  visited array to store the temp path (array of int), cursor to backtrack (pointer to the integer), array of quacks to store the paths (array of quacks),
+   235                  number of paths (pointer to the integer)
+   236  Return Value: void
+   237  Usage: to recurse till the node when we do not have any paths to go further and check of you have seen a bigger path or same length path, if yes save that path into a quack
+   238  */
+   239  void dfsR(Graph g, Vertex v, int numV, int counter, int *maxSeen, int *visited, int *cursor, Quack *quackArray, int *path) {
+   240          visited[*cursor] = v;
+   241      for (Vertex w = v+1; w < numV; w++) { // only looking for alphabetically superior words
+   242          if (isEdge(newEdge(v, w), g)) {
+   243                  *cursor = *cursor + 1;
+   244                  dfsR(g, w, numV, counter+1, maxSeen, visited, cursor, quackArray, path);
+   245                  *cursor = *cursor - 1;
+   246                  if (!childExist(w, g, numV)) {
+   247                                  if (*maxSeen < counter+1) { // New Maximum path found
+   248                                          *maxSeen = counter+1;
+   249
+   250                                          *path = 0; // start with the new path
+   251                                          makeEmptyQuack(quackArray[*path]);
+   252                                          for (int i = 0; i < numV; i++) {
+   253                                                  qush(visited[i], quackArray[*path]);
+   254                                          }
+   255                                  } else if (counter+1 == *maxSeen) { // new path with same maximum path found
+   256                                          *path = *path + 1;
+   257                                          makeEmptyQuack(quackArray[*path]);
+   258                                          for (int i = 0; i < numV; i++) {
+   259                                                  qush(visited[i], quackArray[*path]);
+   260                                          }
+   261                                  }
+   262                  }
+   263          }
+   264      }
+   265      return;
+   266  }
+   267
+   268  /*
+   269  Input: Graph, vertix to start with (integer), number of vertixes (integer), array of quacks to store the paths (array of quacks), number of paths (pointer to the integer), previous    maximum seen value of length of path (pointer to the integer)
+   270  Return Value: void
+   271  Usage: to call the recursive function and get the values set/destroy before/after calling it
+   272  */
+   273  void dfs(Graph g, Vertex rootv, int numV, Quack *quackArray, int *path, int *maxSeen) {
+   274      int counter = 0;
+   275      int *visited = mallocArray(numV);
+   276      int cursor = 0;
+   277
+   278      dfsR(g, rootv, numV, counter+1, maxSeen, visited, &cursor, quackArray, path);
+   279
+   280      free(visited);
+   281  }
+   282
+   283
+   284  /*
+   285  Input: Pointer to the quack array
+   286  Return Value: void
+   287  Usage: to give memory to all the quacks at once
+   288  */
+   289  void createQuackArray(Quack *quackArray) {
+   290          for (int i = 0; i < MAXIMUM_PATHS; i++) {
+   291                  quackArray[i] = createQuack();
+   292          }
+   293  }
+   294
+   295
+   296  /*
+   297  Input: Pointer to the quack array
+   298  Return Value: void
+   299  Usage: to free memory to all the quacks at once
+   300  */
+   301  void destroyQuackArray(Quack *quackArray) {
+   302          for (int i = 0; i < MAXIMUM_PATHS; i++) {
+   303                  quackArray[i] = destroyQuack(quackArray[i]);
+   304          }
+   305          quackArray = NULL;
+   306  }
+   307
+   308  /*
+   309  Input: maximum seen value of length of path (integer), dictionary of words stored in array of character pointers, array of quacks, and number of paths (integer)
+   310  Return Value: void
+   311  Usage: print the longest paths in the graph with dictionary
+   312  */
+   313  void printArray(int maxSeen, char **dict, Quack *quackArray, int path) {
+   314          printf("Longest ladder length: %d\nLongest ladders:\n", maxSeen);
+   315          for (int i = 0; i <= path && i < PRINT_SIZE; i++) {
+   316                  printf("%2d: ", i+1);
+   317                  int j;
+   318                  for (j = 0; j < maxSeen-1; j++) {
+   319                          printf("%s -> ", dict[pop(quackArray[i])]);
+   320                  }
+   321                  printf("%s\n", dict[pop(quackArray[i])]);
+   322          }
+   323  }
+   324
+   325
+   326  int main(void) {
+   327      char **dict = NULL;
+   328      dict = performMalloc(INITIAL_DICT_LENGTH);
+   329
+   330          // taking input from stdin
+   331          int wordCount = takeInput(&dict, INITIAL_DICT_LENGTH);
+               ^
+               + ============ +
+               + indentation? +
+               + ============ +
+   332
+   333          // initilizing the variables
+   334      Graph graph = createGraph(dict, wordCount);
+   335      Quack quackArray[MAXIMUM_PATHS];
+   336      createQuackArray(quackArray);
+   337
+   338          // printing graph
+   339      printGraph(dict, wordCount, graph);
+   340
+   341          // initilizing for searching
+   342      int path = 0;
+   343      int maxSeen = UNVISITED;
+   344      if (wordCount > 0) {
+   345          for (int i = 0; i < wordCount; i++) {
+   346                  dfs(graph, i, wordCount, quackArray, &path, &maxSeen);
+   347          }
+   348          if (maxSeen == UNVISITED) {
+   349                  printf("Longest ladder length: 1\nLongest ladders:\n");
+   350                  for (int i = 0; i < wordCount && i < PRINT_SIZE; i++) {
+   351                          printf("%2d: %s\n",i+1, dict[i]);
+   352                  }
+   353          } else {
+   354                  printArray( maxSeen, dict, quackArray, path);
+   355          }
+   356      }
+   357
+   358      // freeing memory
+   359      dict = freeDict(dict, wordCount);
+   360      graph = freeGraph(graph);
+   361      destroyQuackArray(quackArray);
+   362          return EXIT_SUCCESS;
+   363  }
+
+~cs9024/bin/dcc -c -o GraphAM.o GraphAM.c -I.
+~cs9024/bin/dcc -c -o Quack.o Quack.c -I.
+~cs9024/bin/dcc -c -o owl.o owl.c -I.
+~cs9024/bin/dcc -o owl GraphAM.o Quack.o owl.o -I.
+!!section tests
+** Test 1: : whitespace test
+--------------------------------
+** Test passed
+--------------------------------
+** Test 2: : single char
+--------------------------------
+** Test passed
+--------------------------------
+** Test 3: : 1 owl, same length words
+--------------------------------
+** Test passed
+--------------------------------
+** Test 4: : 1 owl length 10
+--------------------------------
+** Test passed
+--------------------------------
+** Test 5: : words increasing length
+--------------------------------
+** Test passed
+--------------------------------
+** Test 6: : words decreasing length
+--------------------------------
+** Test passed
+--------------------------------
+** Test 7: : 2 owls length 3
+--------------------------------
+** Test passed
+--------------------------------
+** Test 8: : 3 owls length 3
+--------------------------------
+** Test passed
+--------------------------------
+** Test 9: : 4 owls length 4
+--------------------------------
+** Test passed
+--------------------------------
+** Test 10: : 14 owls length 1 (all trivial)
+--------------------------------
+** Test passed
+--------------------------------
+** Test 11: : 12 owls length 15
+--------------------------------
+** Test passed
+--------------------------------
+** Test 12: : 96 owls length 6
+--------------------------------
+** Test passed
+--------------------------------
+!!section assess
+rm -f *.o owl core
+~cs9024/bin/dcc -c -o GraphAM.o GraphAM.c -I. --leak-check
+~cs9024/bin/dcc -c -o Quack.o Quack.c -I. --leak-check
+~cs9024/bin/dcc -c -o owl.o owl.c -I. --leak-check
+~cs9024/bin/dcc -o owl GraphAM.o Quack.o owl.o -I. --leak-check
+!!specialmark  (check memory freed)                     1/1
+
+!!perftab       ** PERFORMANCE ANALYSIS **
+
+Test  1 (1)     : whitespace test .  ..  ..  ..  ..  !!PASSed
+Test  2 (0.5)   : single char .  ..  ..  ..  ..  ..  !!PASSed
+Test  3 (0.5)   : 1 owl, same length words   ..  ..  !!PASSed
+Test  4 (0.5)   : 1 owl length 10 .  ..  ..  ..  ..  !!PASSed
+Test  5 (0.5)   : words increasing length .  ..  ..  !!PASSed
+Test  6 (0.5)   : words decreasing length .  ..  ..  !!PASSed
+Test  7 (0.5)   : 2 owls length 3 .  ..  ..  ..  ..  !!PASSed
+Test  8 (0.5)   : 3 owls length 3 .  ..  ..  ..  ..  !!PASSed
+Test  9 (0.5)   : 4 owls length 4 .  ..  ..  ..  ..  !!PASSed
+Test 10 (0.5)   : 14 owls length 1 (all trivial) ..  !!PASSed
+Test 11 (1.5)   : 12 owls length 15  ..  ..  ..  ..  !!PASSed
+Test 12 (1)     : 96 owls length 6   ..  ..  ..  ..  !!PASSed
+
+!!perfmark      ** TOTAL PERFORMANCE MARK:    8/8
+
+!!marktab       **  MARKER'S  ASSESSMENT  **
+
+           Style  ..  ..  ..  ..  ..  ..  (3)   3
+ ^
+ + ========== +
+ + Good style +
+ + ========== +
+
+           DiffByOne  ..  ..  ..  ..  ..  (1)   1
+ ^
+ + ================== +
+ + Cleanly programmed +
+ + ================== +
+
+           Mallocs .  ..  ..  ..  ..  ..  (1)   1
+ ^
+ + ==================================================== +
+ + Good use of a function to accomplish the NULL checks +
+ + ==================================================== +
+
+           Main   ..  ..  ..  ..  ..  ..  (1)   1
+ ^
+ + ================== +
+ + Cleanly programmed +
+ + ================== +
+
+           Cap (Error: 7.5, Warning: 10)  (0)   0
+
+!!finalmark     **  FINAL  ASSIGNMENT  MARK:    15/15
+
+5240221 Gupta, Jatin                            8543   COMPAS COMPSS
+
+
+Marked by z5164335 on Sun Aug 25 18:01:04 2019
+
+
+
+
+
+
+Marked by z5164335 on Mon Aug 26 20:16:50 2019
+
+
+
+
+Marked by z5164335 on Tue Aug 27 19:24:53 2019
+
+
