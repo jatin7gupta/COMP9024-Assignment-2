@@ -1,12 +1,12 @@
-```
-Contents
+
+## Contents
 1. Assignment 2: Ordered Word Ladders
-  1.1. Phase 1
-  1.2. Phase 2
-  1.3. Phase 3
+    1. Phase 1
+    2. Phase 2
+    3. Phase 3
 2. Changes to the Specification
 
-```
+
 # Assignment 2: Ordered Word Ladders
 
 An _ordered word ladder_ ('owl') is an alphabetically-ordered sequence of words where each
