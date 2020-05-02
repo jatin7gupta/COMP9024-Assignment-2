@@ -1,21 +1,11 @@
 ```
 Contents
-1. Changes to the Specification
-2. Assignment 2: Ordered Word
-Ladders
-1. Phase 1
-2. Phase 2
-3. Phase 3
-```
-# Changes to the Specification
+1. Assignment 2: Ordered Word Ladders
+  1.1. Phase 1
+  1.2. Phase 2
+  1.3. Phase 3
+2. Changes to the Specification
 
-
-
-```
-24 Jul words that are duplicates should be ignored (words may appear just once in any owl)
-```
-```
-31 Jul if there is more than one maximum owl, the list of owls must also be in alphabetic order
 ```
 # Assignment 2: Ordered Word Ladders
 
@@ -42,7 +32,7 @@ function has signature:
 Toggle line numbers
 ```
 ```
-1 bool differByOne(char *, char *)
+bool differByOne(char *, char *)
 ```
 Write such a function and of course test it.
 
@@ -171,3 +161,13 @@ of my examples see the links below.
 ```
 
 
+# Changes to the Specification
+
+
+
+```
+24 Jul words that are duplicates should be ignored (words may appear just once in any owl)
+```
+```
+31 Jul if there is more than one maximum owl, the list of owls must also be in alphabetic order
+```
