@@ -7,7 +7,7 @@
 2. Changes to the Specification
 
 
-# Assignment 2: Ordered Word Ladders
+# Ordered Word Ladders
 
 An _ordered word ladder_ ('owl') is an alphabetically-ordered sequence of words where each
 word in the sequence differs from its predecessor by one action:
